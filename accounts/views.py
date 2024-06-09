@@ -17,4 +17,3 @@ class UserRegistrationView(FormView):
         print(user)
         return super().form_valid(form) # form_valid function call hobe jodi sob thik thake
     
-    

@@ -7,7 +7,7 @@ class UserBankAccount(models.Model):
     user=models.OneToOneField(User,related_name='account',on_delete=models.CASCADE)
     account_type=models.CharField(max_length=10,choices=ACCOUNT_TYPE)
     account_no=models.IntegerField(unique=True)
-    birthday_date=models.DateField(null=True,blank=True)
+    birth_date=models.DateField(null=True,blank=True)
     gender=models.CharField(max_length=10,choices=GENDER_TYPE)
     initial_deposit_date=models.DateField(auto_now_add=True)
     balance=models.DecimalField(default=0,max_digits=12,decimal_places=2)

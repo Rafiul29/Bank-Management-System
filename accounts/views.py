@@ -34,6 +34,7 @@ class UserLogoutView(LogoutView):
         return reverse_lazy('home')
     
 
+
 class UserBankAccountUpdateView(View):
     template_name = 'accounts/profile.html'
 
@@ -47,3 +48,4 @@ class UserBankAccountUpdateView(View):
             form.save()
             return redirect('profile')  # Redirect to the user's profile page
         return render(request, self.template_name, {'form': form})
+    

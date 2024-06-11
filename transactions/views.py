@@ -6,19 +6,19 @@ from django.http import HttpResponse
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView
 from transactions.models import Transaction
-from .forms import DepositForm,WithdrawFrom,LoanRequestFrom
+from .forms import DepositForm,WithdrawFrom,LoanRequestForm
 from .constants import  DEPOSIT,WITHDRAWAL,LOAN,LOAN_PAID
 from django.http import HttpResponse
 from datetime import datetime
-from django.db import Sum
+from django.db.models import Sum
 from django.shortcuts import render,redirect,get_object_or_404
 from django.views import View
 # Create your views here.
 class TransactionCreateMixin(LoginRequiredMixin,CreateView):
-    template_name=''
+    template_name='transactions/transaction_form.html'
     model=Transaction
     title=''
-    success_url=''
+    success_url=reverse_lazy('transaction_report')
 
     def get_form_kwargs(self):
         kwargs= super().get_form_kwargs()
@@ -32,68 +32,70 @@ class TransactionCreateMixin(LoginRequiredMixin,CreateView):
         context.update({
             'title':self.title
         })
+        return context
 
 class DepositMoneyView(TransactionCreateMixin):
-    form_class=DepositForm
-    title='Depost Form'
+    form_class = DepositForm
+    title = 'Deposit Form'
 
     def get_initial(self):
-        initial={'transaction_type':DEPOSIT}
+        initial = {'transaction_type': DEPOSIT}
         return initial
-    
+
     def form_valid(self, form):
-        amount=form.changed_data.get('amount')
-        account=self.request.user.account
-        account.balance+=amount
+        amount = form.cleaned_data.get('amount')
+        account = self.request.user.account
+        account.balance += amount # amount = 200, tar ager balance = 0 taka new balance = 0+200 = 200
         account.save(
             update_fields=[
                 'balance'
             ]
         )
 
-        messages.success(self.request,
-        f'{"{:,.2f}".format(float(amount))}$ was deposited to your account successfully')
+        messages.success(
+            self.request,
+            f'{"{:,.2f}".format(float(amount))}$ was deposited to your account successfully'
+        )
 
         return super().form_valid(form)
     
 class WithdrawMoneyView(TransactionCreateMixin):
-    form_class=WithdrawFrom
-    title='WithdrawFrom Form'
+    form_class = WithdrawFrom
+    title = 'Withdraw Money'
 
     def get_initial(self):
-        initial={'transaction_type':WITHDRAWAL}
+        initial = {'transaction_type': WITHDRAWAL}
         return initial
-    
-    def form_valid(self, form):
-        amount=form.changed_data.get('amount')
-        account=self.request.user.account
-        account.balance-=amount
-        account.save(
-            update_fields=[
-                'balance'
-            ]
-        )
 
-        messages.success(self.request,
-        f'Successfully withdrawn {"{:,.2f}".format(float(amount))}$ from your account')
+    def form_valid(self, form):
+        amount = form.cleaned_data.get('amount')
+
+        self.request.user.account.balance -= form.cleaned_data.get('amount')
+        # balance = 300
+        # amount = 5000
+        self.request.user.account.save(update_fields=['balance'])
+
+        messages.success(
+            self.request,
+            f'Successfully withdrawn {"{:,.2f}".format(float(amount))}$ from your account'
+        )
 
         return super().form_valid(form)
     
 class LoanRequestView(TransactionCreateMixin):
-    form_class=LoanRequestFrom
-    title='Request For Loan'
+    form_class = LoanRequestForm
+    title = 'Request For Loan'
 
     def get_initial(self):
-        initial={'transaction_type':LOAN}
+        initial = {'transaction_type': LOAN}
         return initial
-    
-    def form_valid(self, form):
-        amount=form.changed_data.get('amount')
-        current_loan_count=Transaction.objects.filter(account=self.request.user.account,transaction_type=3,loan_approve=True).count()
 
-        if current_loan_count>=3:
-            return HttpResponse("You have crossed your limits")
-                
+    def form_valid(self, form):
+        amount = form.cleaned_data.get('amount')
+        current_loan_count = Transaction.objects.filter(
+            account=self.request.user.account,transaction_type=3,loan_approve=True).count()
+        if current_loan_count >= 3:
+            return HttpResponse("You have cross the loan limits")
         messages.success(
             self.request,
             f'Loan request for {"{:,.2f}".format(float(amount))}$ submitted successfully'
@@ -101,9 +103,8 @@ class LoanRequestView(TransactionCreateMixin):
 
         return super().form_valid(form)
 
-
 class TransactionReportView(LoginRequiredMixin,ListView):
-    template_name=''
+    template_name='transactions/transaction_report.html'
     model=Transaction
     balance=0
     
@@ -152,7 +153,7 @@ class PayLoanView(LoginRequiredMixin, View):
                 loan.loan_approved = True
                 loan.transaction_type = LOAN_PAID
                 loan.save()
-                return redirect('transactions:loan_list')
+                return redirect('loan_list')
             else:
                 messages.error(
             self.request,
@@ -160,6 +161,7 @@ class PayLoanView(LoginRequiredMixin, View):
         )
 
         return redirect('loan_list')
+
 
 
 class LoanListView(LoginRequiredMixin,ListView):
@@ -170,4 +172,5 @@ class LoanListView(LoginRequiredMixin,ListView):
     def get_queryset(self):
         user_account = self.request.user.account
         queryset = Transaction.objects.filter(account=user_account,transaction_type=3)
+        print(queryset)
         return queryset

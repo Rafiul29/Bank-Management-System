@@ -13,6 +13,9 @@ from datetime import datetime
 from django.db.models import Sum
 from django.shortcuts import render,redirect,get_object_or_404
 from django.views import View
+from django.core.mail import EmailMessage,EmailMultiAlternatives
+from django.template.loader import render_to_string
+
 # Create your views here.
 class TransactionCreateMixin(LoginRequiredMixin,CreateView):
     template_name='transactions/transaction_form.html'
@@ -56,7 +59,12 @@ class DepositMoneyView(TransactionCreateMixin):
             self.request,
             f'{"{:,.2f}".format(float(amount))}$ was deposited to your account successfully'
         )
-
+        mail_subject ='Deposit Message'
+        message=render_to_string('transactions/deposit_email.html',{'user':self.request.user,'amount':amount})
+        to_email=self.request.user.email
+        send_email=EmailMultiAlternatives(mail_subject,'',to=[to_email])
+        send_email.attach_alternative(message,'text/html')
+        send_email.send()
         return super().form_valid(form)
     
 class WithdrawMoneyView(TransactionCreateMixin):

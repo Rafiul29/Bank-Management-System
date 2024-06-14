@@ -1,5 +1,10 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render,redirect
+from django.contrib import messages
+from django.contrib.auth.forms import UserCreationForm,PasswordChangeForm
+
+from django.views.generic.edit import FormView
 from django.db.models.query import QuerySet
 from django.forms import BaseModelForm
 from django.http import HttpResponse
@@ -8,6 +13,8 @@ from django.views.generic import CreateView, ListView
 from transactions.models import Transaction
 from accounts.models import UserBankAccount
 from .forms import DepositForm,WithdrawFrom,LoanRequestForm,TransferForm
+from django.contrib.auth import update_session_auth_hash
+
 from .constants import  DEPOSIT,WITHDRAWAL,LOAN,LOAN_PAID,TRANSFER_IN,TRANSFER_OUT
 from django.http import HttpResponse
 from datetime import datetime
@@ -23,6 +30,7 @@ def send_transaction_email(user, amount, subject, template):
         message = render_to_string(template, {
             'user' : user,
             'amount' : amount,
+            'subject':subject
         })
         send_email = EmailMultiAlternatives(subject, '', to=[user.email])
         send_email.attach_alternative(message, "text/html")
@@ -163,7 +171,7 @@ class TransactionReportView(LoginRequiredMixin,ListView):
         })
 
         return context
-    
+     
 class PayLoanView(LoginRequiredMixin, View):
     def get(self, request, loan_id):
         loan = get_object_or_404(Transaction, id=loan_id)
@@ -217,7 +225,7 @@ class TransferMoneyView(TransactionCreateMixin):
         recipient_account_number = form.cleaned_data.get('recipient_account')
         
         recipient_account = UserBankAccount.objects.get(account_no=recipient_account_number)
-
+       
         if sender_account.balance >= amount:
             sender_account.balance -= amount
             recipient_account.balance += amount
@@ -239,8 +247,12 @@ class TransferMoneyView(TransactionCreateMixin):
                 f'Successfully transferred {"{:,.2f}".format(float(amount))}$ to account {recipient_account_number}'
             )
 
-            # send_transaction_email(self.request.user, amount, "Transfer Message", "transactions/transfer_email.html")
+            send_transaction_email(self.request.user, amount, "Money Send", "transactions/transfer_money_email.html")
+            send_transaction_email(recipient_account.user, amount, "Money Received", "transactions/transfer_money_email.html")
+
+
             return super().form_valid(form)
         else:
             form.add_error('amount', 'Insufficient balance')
             return self.form_invalid(form)
+       

@@ -1,9 +1,12 @@
-
-from django.contrib.auth.forms import UserCreationForm
+from django.shortcuts import render,redirect
+from django.contrib import messages
+from django.contrib.auth.forms import UserCreationForm,PasswordChangeForm
 from django import forms
 from .constrants import ACCOUNT_TYPE, GENDER_TYPE
 from django.contrib.auth.models import User
 from .models import UserBankAccount, UserAddress
+
+from django.contrib.auth.decorators import login_required
 
 class UserRegistrationForm(UserCreationForm):
     birth_date = forms.DateField(widget=forms.DateInput(attrs={'type':'date'}))
@@ -125,3 +128,7 @@ class UserUpdateForm(forms.ModelForm):
             user_address.save()
 
         return user
+    
+
+
+

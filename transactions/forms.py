@@ -1,7 +1,7 @@
 from typing import Any
 from django import forms
 from .models import Transaction
-
+from accounts.models import UserBankAccount,BankruptStatus
 
 class TransactionFrom(forms.ModelForm):
     
@@ -53,7 +53,7 @@ class WithdrawFrom(TransactionFrom):
                  f'You have {balance} $ in your account. '
                 'You can not withdraw more than your account balance'
             )
-        
+
         return amount
 
 class LoanRequestForm(TransactionFrom):
@@ -61,3 +61,27 @@ class LoanRequestForm(TransactionFrom):
         amount = self.cleaned_data.get('amount')
 
         return amount
+
+class TransferForm(TransactionFrom):
+    recipient_account = forms.IntegerField()
+
+
+    class Meta(TransactionFrom.Meta):
+        fields = TransactionFrom.Meta.fields + ['recipient_account']
+
+    def clean_amount(self):
+        amount = self.cleaned_data.get('amount')
+        account_number = self.cleaned_data.get('recipient_account')
+        if amount>self.account.balance:
+             raise forms.ValidationError("Insuficeinent balance")
+        return amount
+    
+    def clean_recipient_account(self):
+        account_number = self.cleaned_data.get('recipient_account')
+        try:
+            findUserAccount = UserBankAccount.objects.get(account_no=account_number)
+        except UserBankAccount.DoesNotExist:
+            raise forms.ValidationError("Recipient account not found")
+        
+        return account_number
+    

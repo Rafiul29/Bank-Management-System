@@ -6,8 +6,9 @@ from django.http import HttpResponse
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView
 from transactions.models import Transaction
-from .forms import DepositForm,WithdrawFrom,LoanRequestForm
-from .constants import  DEPOSIT,WITHDRAWAL,LOAN,LOAN_PAID
+from accounts.models import UserBankAccount
+from .forms import DepositForm,WithdrawFrom,LoanRequestForm,TransferForm
+from .constants import  DEPOSIT,WITHDRAWAL,LOAN,LOAN_PAID,TRANSFER_IN,TRANSFER_OUT
 from django.http import HttpResponse
 from datetime import datetime
 from django.db.models import Sum
@@ -15,7 +16,7 @@ from django.shortcuts import render,redirect,get_object_or_404
 from django.views import View
 from django.core.mail import EmailMessage,EmailMultiAlternatives
 from django.template.loader import render_to_string
-
+from accounts.models import BankruptStatus
 # Create your views here.
 
 def send_transaction_email(user, amount, subject, template):
@@ -40,6 +41,8 @@ class TransactionCreateMixin(LoginRequiredMixin,CreateView):
         })
         return kwargs
     
+
+    
     def get_context_data(self, **kwargs):
         context=super().get_context_data(**kwargs)
         context.update({
@@ -56,9 +59,11 @@ class DepositMoneyView(TransactionCreateMixin):
         return initial
 
     def form_valid(self, form):
+       
+
         amount = form.cleaned_data.get('amount')
         account = self.request.user.account
-        account.balance += amount # amount = 200, tar ager balance = 0 taka new balance = 0+200 = 200
+        account.balance += amount 
         account.save(
             update_fields=[
                 'balance'
@@ -85,9 +90,16 @@ class WithdrawMoneyView(TransactionCreateMixin):
     def form_valid(self, form):
         amount = form.cleaned_data.get('amount')
 
+        bankrupt_status = BankruptStatus.objects.first() 
+
+        if bankrupt_status and bankrupt_status.is_bankrupt:
+            messages.error(self.request, "The bank is bankrupt. Withdrawals are temporarily disabled.")
+            form.add_error('amount','The bank is bankrupt. Withdrawals are temporarily disabled.')
+            return render(self.request, self.template_name, {'form': form, 'title': self.title})
+            return self.form_invalid(form)    
+
         self.request.user.account.balance -= form.cleaned_data.get('amount')
-        # balance = 300
-        # amount = 5000
+        
         self.request.user.account.save(update_fields=['balance'])
 
         messages.success(
@@ -189,3 +201,46 @@ class LoanListView(LoginRequiredMixin,ListView):
         queryset = Transaction.objects.filter(account=user_account,transaction_type=3)
         print(queryset)
         return queryset
+    
+class TransferMoneyView(TransactionCreateMixin):
+    form_class = TransferForm
+    title = 'Transfer Money'
+    template_name='transactions/transfer_money.html'
+
+    def get_initial(self):
+        initial = {'transaction_type': TRANSFER_OUT}
+        return initial
+
+    def form_valid(self, form):
+        amount = form.cleaned_data.get('amount')
+        sender_account = self.request.user.account
+        recipient_account_number = form.cleaned_data.get('recipient_account')
+        
+        recipient_account = UserBankAccount.objects.get(account_no=recipient_account_number)
+
+        if sender_account.balance >= amount:
+            sender_account.balance -= amount
+            recipient_account.balance += amount
+
+            sender_account.save(update_fields=['balance'])
+            recipient_account.save(update_fields=['balance'])
+
+
+            # Log the transaction for the recipient
+            Transaction.objects.create(
+                account=recipient_account,
+                amount=amount,
+                transaction_type=TRANSFER_IN,
+                balance_after_transaction=recipient_account.balance
+            )
+
+            messages.success(
+                self.request,
+                f'Successfully transferred {"{:,.2f}".format(float(amount))}$ to account {recipient_account_number}'
+            )
+
+            # send_transaction_email(self.request.user, amount, "Transfer Message", "transactions/transfer_email.html")
+            return super().form_valid(form)
+        else:
+            form.add_error('amount', 'Insufficient balance')
+            return self.form_invalid(form)

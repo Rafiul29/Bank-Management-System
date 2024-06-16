@@ -108,22 +108,22 @@ WSGI_APPLICATION = 'bank_management_system.wsgi.application'
 #     }
 # }
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env("DB_NAME"),
-        'USER': env("DB_USER"),
-        'PASSWORD': env("DB_PASSWORD"),
-        'HOST': env("DB_HOST"),
-        'PORT': env("DB_PORT"),
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': env("DB_NAME"),
+#         'USER': env("DB_USER"),
+#         'PASSWORD': env("DB_PASSWORD"),
+#         'HOST': env("DB_HOST"),
+#         'PORT': env("DB_PORT"),
+#     }
+# }
 
 # Replace the SQLite DATABASES configuration with PostgreSQL:
-# DATABASES = {
-#     'default': dj_database_url.config(        
-#         default='postgres://bank_management_user:uxCYrBGpXGoOLr8Ua22tdmKQDaLuzOLg@dpg-cpksmivsc6pc73f40go0-a.oregon-postgres.render.com/bank_management',       
-#      )}
+DATABASES = {
+    'default': dj_database_url.config(        
+        default='postgres://bank_management_user:uxCYrBGpXGoOLr8Ua22tdmKQDaLuzOLg@dpg-cpksmivsc6pc73f40go0-a.oregon-postgres.render.com/bank_management'
+     )}
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

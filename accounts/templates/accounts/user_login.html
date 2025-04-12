@@ -11,8 +11,24 @@
     <div></div>
     <div class="py-2 px-3 rounded-xl bg-white mt-12">
         <h1 class="font-bold text-3xl text-center pb-5 shadow-md">Login</h1>
-        <div class="w-full mt-10">
-            <form method="post" class="shadow-md border border-gray-200 rounded px-8 pt-6 pb-8 mb-4">
+        <div class="w-full mt-10  mb-3">
+            <div style="padding: 20px; background-color: #f4f7fc; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); max-width: 500px; margin: auto;">
+                <h4 style="text-align: center; color: #333; font-size: 24px; font-weight: bold; margin-bottom: 20px;">Login Credentials</h4>
+                
+                <div style="background-color: #fff; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                    <h6 style="font-size: 20px; font-weight: 600; color: #007BFF;">Admin</h6>
+                    <p style="font-size: 16px; color: #555;">Username: <strong>admin</strong></p>
+                    <p style="font-size: 16px; color: #555;">Password: <strong>123</strong></p>
+                </div>
+                
+                <div style="background-color: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                    <h6 style="font-size: 20px; font-weight: 600; color: #007BFF;">User</h6>
+                    <p style="font-size: 16px; color: #555;">Username: <strong>rafi12</strong></p>
+                    <p style="font-size: 16px; color: #555;">Password: <strong>mnbvcxz@#12</strong></p>
+                </div>
+            </div>
+            
+            <form method="post" class="shadow-md border border-gray-200 rounded px-8 pt-6 pb-8 mb-4 mt-5">
                 {% csrf_token %} {% for hidden_field in form.hidden_fields %} {{ hidden_field.errors }} {{ hidden_field }} {% endfor %} 
                 {% for field in form.visible_fields %}
                 <div class="mb-4">

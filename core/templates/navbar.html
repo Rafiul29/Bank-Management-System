@@ -1,0 +1,59 @@
+<nav class="flex items-center justify-between flex-wrap bg-white py-5 px-10 border-b border-gray-300 ">
+    <div class="flex items-center flex-shrink-0 text-white mr-6">
+        <span class="font-semibold text-xl tracking-tight text-blue-900"><a href="/">Mamar Bank</a></span>
+    </div>
+    <div class="block lg:hidden">
+        <button id="mobile-menu-button" class="flex items-center px-3 py-2 border-2 rounded text-white border-gray-600 hover:text-white">
+            <svg class="fill-current h-3 w-3" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z"/></svg>
+        </button>
+    </div>
+
+    <!-- Register Login non logged in user or Report, Withdraw, Deposit, Profile, Logout for logged in user -->
+    <div id="navbar-links" class="w-full block flex-grow lg:flex lg:items-center lg:w-auto md:hidden">
+        {% if request.user.is_authenticated %}
+            <div class="text-md lg:flex-grow">
+                <a href="{% url 'transaction_report'%}" class="block mt-4 lg:inline-block lg:mt-0 text-blue-900 hover:text-red-900 hover:font-black mr-4">
+                    Report
+                </a>
+                <a href="{% url 'deposit_money' %}" class="block mt-4 lg:inline-block lg:mt-0 text-blue-900 hover:text-red-900 hover:font-black mr-4">
+                    Deposit
+                </a>
+                <a href="{% url 'withdraw_money' %}" class="block mt-4 lg:inline-block lg:mt-0 text-blue-900 hover:text-red-900 hover:font-black mr-4">
+                    Withdraw
+                </a>
+                <a href="{% url 'loan_request'%}" class="block mt-4 lg:inline-block lg:mt-0 text-blue-900 hover:text-red-900 hover:font-black mr-4">
+                    Loan Request
+                </a>
+                <a href="{% url 'transfer_money' %}" class="block mt-4 lg:inline-block lg:mt-0 text-blue-900 hover:text-red-900 hover:font-black mr-4">
+                    Transfer Money
+                </a>
+            </div>
+            <div class="flex flex-col gap-0 lg:gap-3 lg:flex-row w-auto mt-2 lg:mt-0">
+                <div class="text-blue-900 my-auto font-black">
+                    Welcome, {{ request.user.first_name }} (balance : {{request.user.account.balance}}) 
+                </div>
+                <a href="{% url 'profile' %}" class="self-start font-medium text-sm px-4 py-2 leading-none bg-blue-900 rounded text-white border-white hover:border-transparent hover:text-dark hover:bg-red-700 mt-4 lg:mt-0">Profile</a>
+                <a href="{% url 'logout' %}" class="self-start font-medium text-sm px-4 py-2 leading-none bg-blue-900 rounded text-white border-white hover:border-transparent hover:text-dark hover:bg-red-700 mt-4 lg:mt-0">Logout</a>
+            </div>
+        {% else %}
+            <div class="text-md lg:flex-grow"></div>
+            <div>
+                <a href="{% url 'login'%}" class="mr-2 inline-block font-medium text-sm px-4 py-2 leading-none bg-blue-900 rounded text-white border-white hover:border-transparent hover:text-gray-800 hover:bg-red-700 mt-4 lg:mt-0">Login</a>
+            </div>
+            <div>
+                <a href="{% url 'register' %}" class="inline-block font-medium text-sm px-4 py-2 leading-none bg-blue-900 rounded text-white border-white hover:border-transparent hover:text-gray-800 hover:bg-red-700 mt-4 lg:mt-0">Register</a>
+            </div>
+        {% endif %}
+    </div>
+</nav>
+
+<script>
+    // Get the button and the navbar menu
+    const menuButton = document.getElementById('mobile-menu-button');
+    const navbarLinks = document.getElementById('navbar-links');
+
+    // Toggle the visibility of the navbar menu
+    menuButton.addEventListener('click', () => {
+        navbarLinks.classList.toggle('md:hidden');
+    });
+</script>

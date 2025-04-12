@@ -1,0 +1,47 @@
+{% extends 'base.html' %} 
+
+{% block body %}
+
+ <!-- Hero Section -->
+ <section class="bg-gradient-to-r from-blue-700 via-blue-800 to-blue-900 text-white py-20 px-6 min-h-screen flex items-center">
+  <div class="container max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between w-full">
+    
+    <!-- Left Content -->
+    <div class="md:w-1/2 mb-12 md:mb-0">
+      <h1 class="text-4xl md:text-5xl font-bold leading-tight mb-6">
+        Smart & Secure Bank Management System
+      </h1>
+      <p class="text-lg md:text-xl mb-6">
+        Manage accounts, transactions, and customer information efficiently with our modern, secure platform.
+      </p>
+      <a href="#features" class="inline-block bg-white text-blue-800 font-semibold px-6 py-3 rounded-xl shadow hover:bg-gray-200 transition">
+        Learn More
+      </a>
+
+      <!-- Extra Info Below CTA -->
+      <div class="mt-10 space-y-4">
+        <div class="flex items-start gap-3">
+          <span class="text-green-300 text-xl">✓</span>
+          <p>Real-time account and transaction monitoring</p>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="text-green-300 text-xl">✓</span>
+          <p>Advanced security and encryption for all data</p>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="text-green-300 text-xl">✓</span>
+          <p>Built for banks, credit unions, and financial startups</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Image -->
+    <div class="md:w-1/2 flex justify-center">
+      <img src="https://media.istockphoto.com/id/640267784/photo/bank-building.jpg?s=612x612&w=0&k=20&c=UTtm4t6WR-MLwO6ATq5l6n3SoCc6HpaClEFZMxO1Nek=" alt="Bank Illustration" class="w-full max-w-md rounded-lg shadow-2xl">
+    </div>
+  </div>
+</section>
+
+
+
+{% endblock %}

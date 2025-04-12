@@ -4,12 +4,16 @@ A simple and secure Bank Management System built with Django. This project allow
 
 ## 🚀 Features
 
-- User registration and authentication
-- Account creation and balance management
-- Deposit and withdrawal functionality
-- Transaction history tracking
-- Admin panel for managing users and accounts
-
+- **User registration and authentication**  
+- **Account creation and balance management**  
+- **Deposit and withdrawal functionality**  
+  - Max 2 deposit/withdrawal requests per user
+- **Loan request functionality**  
+  - Max 2 loan requests per user
+- **Transaction history tracking**  
+- **Admin panel for managing users and accounts**  
+- **Email notifications for deposit, withdrawal, and loan requests**  
+  - Sent to the user's email upon transaction request
 ## 🛠 Tech Stack
 
 - Python 3

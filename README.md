@@ -19,7 +19,7 @@ A simple and secure Bank Management System built with Django. This project allow
 - Python 3
 - Django
 - SQLite3 (default)
-- Bootstrap (frontend styling)
+- TailwindCss (frontend styling)
 
 ## 📦 Installation
 
